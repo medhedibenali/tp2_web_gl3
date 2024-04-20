@@ -1,3 +1,30 @@
 type Query {
   hello: String!
 }
+
+type Cv {
+  id: ID!
+  name: String!
+  age: Int!
+  job: String!
+  user: User!
+  skills: [Skill!]
+}
+
+type Skill {
+  id: ID!
+  designation: String!
+  cvs: [Cv!]
+}
+
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  role: Role!
+}
+
+enum Role {
+  USER
+  ADMIN
+}
