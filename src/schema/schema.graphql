@@ -8,13 +8,13 @@ type Cv {
   age: Int!
   job: String!
   user: User!
-  skills: [Skill!]!
+  skills: [Skill!]
 }
 
 type Skill {
   id: ID!
   designation: String!
-  cvs: [Cv!]!
+  cvs: [Cv!]
 }
 
 type User {
