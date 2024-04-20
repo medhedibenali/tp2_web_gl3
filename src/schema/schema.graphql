@@ -3,25 +3,25 @@ type Query {
 }
 
 type Cv {
-  id: ID
-  name: String
-  age: Int
-  job: String
-  user: User
-  skills: [Skill]
+  id: ID!
+  name: String!
+  age: Int!
+  job: String!
+  user: User!
+  skills: [Skill!]
 }
 
 type Skill {
-  id: ID
-  designation: String
-  cvs: [Cv]
+  id: ID!
+  designation: String!
+  cvs: [Cv!]
 }
 
 type User {
-  id: ID
-  name: String
-  email: String
-  role: Role
+  id: ID!
+  name: String!
+  email: String!
+  role: Role!
 }
 
 enum Role {
