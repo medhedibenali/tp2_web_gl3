@@ -1,6 +1,6 @@
-import { Cv, CvSkill, Role, Skill, User } from "../models";
+import { Cv, CvSkill, Db, Role, Skill, User } from "../models";
 
-export let users: User[] = [
+export const users: User[] = [
   {
     id: "a5ddaa14-b0e0-4103-9a47-c29e3f5dd42b",
     name: "Grace",
@@ -33,7 +33,7 @@ export let users: User[] = [
   },
 ];
 
-export let skills: Skill[] = [
+export const skills: Skill[] = [
   {
     id: "56b3442a-eb56-46a5-a1e9-953b7cfe489c",
     designation: "Verbal and presentation",
@@ -60,7 +60,7 @@ export let skills: Skill[] = [
   },
 ];
 
-export let cvs: Cv[] = [
+export const cvs: Cv[] = [
   {
     id: "c013edea-23e6-4d21-97af-1f92fda6c23f",
     name: "Grace",
@@ -112,7 +112,7 @@ export let cvs: Cv[] = [
   },
 ];
 
-export let cv_skills: CvSkill[] = [
+export const cv_skills: CvSkill[] = [
   {
     cv: "c013edea-23e6-4d21-97af-1f92fda6c23f",
     skill: "56b3442a-eb56-46a5-a1e9-953b7cfe489c",
@@ -154,3 +154,10 @@ export let cv_skills: CvSkill[] = [
     skill: "dc0b6133-e746-401c-bea2-e0f9233eb7cb",
   },
 ];
+
+export const db: Db = {
+  cv_skills,
+  cvs,
+  skills,
+  users,
+};

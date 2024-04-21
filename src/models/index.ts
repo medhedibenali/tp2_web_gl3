@@ -1,3 +1,4 @@
+export * from "./db";
 export * from "./cv_skill";
 export * from "./cv";
 export * from "./role";
