@@ -4,6 +4,7 @@ import { Query } from "./resolvers";
 import fs from "fs";
 import path from "path";
 import { db } from "./db";
+import { Cv } from "./resolvers/Cv";
 
 export const schema = createSchema({
   typeDefs: fs.readFileSync(
@@ -12,6 +13,7 @@ export const schema = createSchema({
   ),
   resolvers: {
     Query,
+    Cv
   },
 });
 
