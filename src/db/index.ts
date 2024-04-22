@@ -1,4 +1,5 @@
-import { Cv, CvSkill, Db, Role, Skill, User } from "../models";
+import { Cv, CvSkill, Db, Role, Skill, User } from "../types";
+
 export const users: User[] = [
   {
     id: "a5ddaa14-b0e0-4103-9a47-c29e3f5dd42b",

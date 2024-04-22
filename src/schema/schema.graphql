@@ -1,7 +1,13 @@
 type Query {
   hello: String!
-  getAllCvs:[Cv]!
-  getCvById(id:String!):Cv!
+  getAllCvs: [Cv!]
+  getCvById(id:String!): Cv!
+}
+
+type Subscription {
+  cvAdded: Cv!
+  cvUpdated: Cv!
+  cvDeleted: Cv!
 }
 
 type Cv {

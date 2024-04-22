@@ -1,4 +1,5 @@
 export const Query = {
+  hello: () => "Hello GL3",
   getAllCvs: (parent: any, args: any, { db }: any, info: any) => {
     return db.cvs;
   },
