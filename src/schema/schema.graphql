@@ -31,6 +31,30 @@ type User {
   email: String!
   role: Role!
 }
+input AddCvInput {
+  name: String!
+  age: Int!
+  job: String!
+  userId: String!
+  skillids: [String!]
+}
+input UpdateCvInput {
+  id: ID!
+  name: String!
+  age: Int!
+  job: String!
+  userId: String!
+  skillids: [String!]
+}
+
+
+type Mutation {
+  addCv(input: AddCvInput!): Cv
+  updateCv(input: UpdateCvInput!): Cv
+  deleteCv(id: ID!): String
+}
+
+
 
 enum Role {
   USER
