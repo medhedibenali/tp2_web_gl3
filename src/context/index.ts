@@ -1,7 +1,7 @@
+import { PrismaClient } from "@prisma/client";
 import { createPubSub } from "graphql-yoga";
-import { db } from "../db"
 
 export const context = {
-  db,
+  prisma: new PrismaClient(),
   pubSub: createPubSub(),
 };
