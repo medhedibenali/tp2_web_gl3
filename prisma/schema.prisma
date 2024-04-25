@@ -19,7 +19,7 @@ enum Role {
 }
 
 model User {
-  id Int @id @default(autoincrement())
+  id String @id 
   name String
   email String
   role Role
@@ -27,25 +27,25 @@ model User {
 }
 
 model Cv {
-  id Int @id @default(autoincrement())
+  id String @id 
   name String
   age Int
   job String
-  userId Int
+  userId String
   user User @relation(fields: [userId],references: [id])
   skills CvSkill[]
 }
 
 model Skill {
-  id Int @id @default(autoincrement())
+  id String @id 
   designation String
   cvs CvSkill[]
 }
 
 model CvSkill {
-  cvId Int
+  cvId String
   cv Cv @relation(fields: [cvId],references: [id])
-  skillId Int
+  skillId String
   skill Skill @relation(fields: [skillId], references: [id])
   @@id([cvId,skillId])
 }

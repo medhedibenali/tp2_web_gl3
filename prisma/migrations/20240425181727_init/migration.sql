@@ -3,7 +3,7 @@ CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN');
 
 -- CreateTable
 CREATE TABLE "User" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "role" "Role" NOT NULL,
@@ -13,18 +13,18 @@ CREATE TABLE "User" (
 
 -- CreateTable
 CREATE TABLE "Cv" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "age" INTEGER NOT NULL,
     "job" TEXT NOT NULL,
-    "userId" INTEGER NOT NULL,
+    "userId" TEXT NOT NULL,
 
     CONSTRAINT "Cv_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Skill" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "designation" TEXT NOT NULL,
 
     CONSTRAINT "Skill_pkey" PRIMARY KEY ("id")
@@ -32,8 +32,8 @@ CREATE TABLE "Skill" (
 
 -- CreateTable
 CREATE TABLE "CvSkill" (
-    "cvId" INTEGER NOT NULL,
-    "skillId" INTEGER NOT NULL,
+    "cvId" TEXT NOT NULL,
+    "skillId" TEXT NOT NULL,
 
     CONSTRAINT "CvSkill_pkey" PRIMARY KEY ("cvId","skillId")
 );
