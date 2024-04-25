@@ -5,3 +5,11 @@ export interface Cv {
   job: string;
   user: string;
 }
+
+export type AddCvInput = Omit<Cv, "id"> & {
+  skills: string[];
+};
+
+export type UpdateCvInput = Partial<AddCvInput> & {
+  id: string;
+};

@@ -4,6 +4,12 @@ type Query {
   getCvById(id:String!): Cv!
 }
 
+type Mutation {
+  addCv(input: AddCvInput!): Cv!
+  updateCv(input: UpdateCvInput!): Cv!
+  deleteCv(id: ID!): DeletedCv!
+}
+
 type Subscription {
   cvAdded: Cv!
   cvUpdated: Cv!
@@ -31,30 +37,31 @@ type User {
   email: String!
   role: Role!
 }
+
 input AddCvInput {
   name: String!
   age: Int!
   job: String!
-  userId: String!
-  skillids: [String!]
+  user: String!
+  skills: [String!]
 }
+
 input UpdateCvInput {
+  id: ID!
+  name: String
+  age: Int
+  job: String
+  user: String
+  skills: [String!]
+}
+
+type DeletedCv {
   id: ID!
   name: String!
   age: Int!
   job: String!
-  userId: String!
-  skillids: [String!]
+  user: User!
 }
-
-
-type Mutation {
-  addCv(input: AddCvInput!): Cv
-  updateCv(input: UpdateCvInput!): Cv
-  deleteCv(id: ID!): String
-}
-
-
 
 enum Role {
   USER

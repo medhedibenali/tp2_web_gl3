@@ -1,97 +1,138 @@
-export interface AddCvInput {
-    name: string;
-    age: number;
-    job: string;
-    userId: string;
-    skillids: string[];
+import { GraphQLError } from "graphql";
+import { CV_ADDED, CV_DELETED, CV_UPDATED } from "../events";
+import {
+  AddCvInput,
+  Context,
+  CvSkill,
+  Db,
+  Input,
+  UpdateCvInput,
+} from "../types";
+
+function verifyUser(user: string | undefined, db: Db) {
+  if (user && !db.users.some(({ id }) => id === user)) {
+    throw new GraphQLError("User does not exist");
   }
-  
-  export interface Skill {
-    id: string;
-    name: string;
+}
+
+function createCvSkills(
+  cv: string,
+  skills: string[] | undefined,
+  db: Db,
+): CvSkill[] | null {
+  if (!skills) {
+    return null;
   }
 
-  export interface UpdateCvInput {
-    id: string;
-    name: string;
-    age: number;
-    job: string;
-    userId: string;
-    skillids: string[];
+  const cvSkills: CvSkill[] = [];
+
+  // Check if all skills exist
+  if (skills.length > 0) {
+    return cvSkills;
   }
-  
-  export const Mutation = {
-    addCv: (parent: any, args : { input : AddCvInput} , { db }: any, info: any) => {
-      const { name, age, job, userId, skillids } = args.input;
-      const user = db.users.find((user:any) => user.id === userId);
-      if (!user) {
-        throw new Error("User does not exist");
-      }
-    
-      // Check if all skills exist
-      if (skillids.length > 0) {
-        const allSkillsExist = skillids.every(id => db.skills.some((skill:any) => skill.id === id));
-        if (!allSkillsExist) {
-          throw new Error("One or more skills do not exist");
-        }
-      }
-    
-      // Create a new CV
-      const newCv = {
-        id: Date.now().toString(),
-        name,
-        age,
-        job,
-        user: userId,
-        skills: skillids
-      };
-      db.cvs.push(newCv);
-    
-      // Make sure to return the new CV including user data correctly
-      console.log(db);
-      return {
-        ...newCv,
-        ...user,
-        role: user.role === "admin" ? "ADMIN" : "USER",
-        skills: skillids.map(id => db.skills.find((skill:any) => skill.id === id))
-      };
+
+  const uniqueSkills = skills.filter((value, index, array) =>
+    array.indexOf(value) === index
+  );
+
+  const allSkillsExist = uniqueSkills.every((id) =>
+    db.skills.some((skill) => skill.id === id)
+  );
+
+  if (!allSkillsExist) {
+    throw new GraphQLError("One or more skills do not exist");
+  }
+
+  cvSkills.push(...uniqueSkills.map((skill) => ({ cv, skill })));
+
+  return cvSkills;
+}
+
+export const Mutation = {
+  addCv: (
+    _parent: unknown,
+    { input }: Input<AddCvInput>,
+    { db, pubSub }: Context,
+  ) => {
+    const { user, skills, ...data } = input;
+
+    verifyUser(user, db);
+
+    const cv = crypto.randomUUID();
+    const cvSkills: CvSkill[] = createCvSkills(cv, skills, db)!;
+
+    // Create a new CV
+    const newCv = {
+      id: cv,
+      ...data,
+      user,
+    };
+
+    db.cvs.push(newCv);
+    db.cv_skills.push(...cvSkills);
+
+    pubSub.publish(CV_ADDED, newCv);
+
+    // Make sure to return the new CV including user data correctly
+    return newCv;
+  },
+
+  updateCv: (
+    _parent: unknown,
+    { input }: Input<UpdateCvInput>,
+    { db, pubSub }: Context,
+  ) => {
+    const { id, user, skills, ...data } = input;
+
+    // Find the CV
+    const cvIndex = db.cvs.findIndex((cv) => cv.id === id);
+    if (cvIndex === -1) {
+      throw new GraphQLError("CV not found");
     }
-  ,  
-    
-    updateCv: async (parent: any, args : { input : UpdateCvInput} , { db }: any, info: any) => {
-      const { id, name, age, job, userId, skillids } = args.input;
-  
-      // Find the CV
-      const cvIndex = db.cvs.findIndex((cv:any) => cv.id === id);
-      if (cvIndex === -1) {
-        throw new Error("CV not found");
-      }
-  
-      // Validate user and skills as in addCv
-      const userExists = db.users.some((user:any) => user.id === userId);
-      if (!userExists) {
-        throw new Error("User does not exist");
-      }
-  
-      const allSkillsExist = skillids && skillids.every(id => db.skills.some((skill:any) => skill.id === id));
-      if (skillids && !allSkillsExist) {
-        throw new Error("One or more skills do not exist");
-      }
-  
-      // Update the CV
-      const updatedCv = { ...db.cvs[cvIndex], name, age, job, user: userId, skills: skillids };
-      db.cvs[cvIndex] = updatedCv;
-      return updatedCv;
-    },
-  
-    deleteCv: async (parent: any, args : { id : String} , { db }: any, info: any) => {
-      const cvIndex = db.cvs.findIndex((cv:any) => cv.id === args.id);
-      if (cvIndex === -1) {
-        throw new Error("CV not found");
-      }
-      db.cvs.splice(cvIndex, 1);
-      console.log(db);
-      return `CV with id ${args.id} was deleted successfully.`;
+
+    verifyUser(user, db);
+
+    const cvSkills: CvSkill[] | null = createCvSkills(id, skills, db);
+
+    // Update the CV
+    const updatedCv = {
+      ...db.cvs[cvIndex],
+      ...data,
+    };
+
+    if (user) {
+      updatedCv.user = user;
     }
-  };
- 
+
+    db.cvs[cvIndex] = updatedCv;
+
+    if (cvSkills) {
+      db.cv_skills = db.cv_skills.filter((cvSkill) => cvSkill.cv === id);
+      db.cv_skills.push(...cvSkills);
+    }
+
+    pubSub.publish(CV_UPDATED, updatedCv);
+
+    return updatedCv;
+  },
+
+  deleteCv: (
+    _parent: unknown,
+    { id }: { id: string },
+    { db, pubSub }: Context,
+  ) => {
+    const cvIndex = db.cvs.findIndex((cv) => cv.id === id);
+
+    if (cvIndex === -1) {
+      throw new Error("CV not found");
+    }
+
+    const [cv] = db.cvs.splice(cvIndex, 1);
+    db.cv_skills = db.cv_skills.filter((cvSkill) => cvSkill.cv !== cv.id);
+
+    pubSub.publish(CV_DELETED, cv);
+
+    return cv;
+  },
+};
+
