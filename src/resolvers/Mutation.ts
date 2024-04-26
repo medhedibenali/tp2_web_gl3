@@ -69,10 +69,7 @@ export const Mutation = {
   // Create CV entry
   const newCv = await prisma.cv.create({
     data: {
-      id: crypto.randomUUID(),
-      name: data.name,
-      age: data.age,
-      job: data.job,
+      ...cv,
       user: { connect: { id: user } }, // Connect CV to user
       skills: {
         create: cvSkills.map(skill => ({
