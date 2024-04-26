@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
 import { CV_ADDED, CV_DELETED, CV_UPDATED } from "../events";
-import { AddCvInput, Context, CvSkill, Input, UpdateCvInput } from "../types";
+import { AddCvInput, Context, CvSkill, Id, Input, UpdateCvInput } from "../types";
 import { PrismaClient } from "@prisma/client";
 
 async function verifyUser(user: string | undefined, prisma: PrismaClient) {
@@ -119,7 +119,7 @@ export const Mutation = {
 
   deleteCv: async (
     _parent: unknown,
-    { id }: { id: string },
+    { id }: Id,
     { prisma, pubSub }: Context,
   ) => {
     const deletedCv = await prisma.cv.delete({ where: { id } });
