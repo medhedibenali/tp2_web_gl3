@@ -1,11 +1,6 @@
 import { GraphQLError } from "graphql";
 import { CV_ADDED, CV_DELETED, CV_UPDATED } from "../events";
-import {
-  AddCvInput,
-  Context,
-  CvSkill,
-  UpdateCvInput,
-} from "../types";
+import { AddCvInput, Context, CvSkill, Input, UpdateCvInput } from "../types";
 import { PrismaClient } from "@prisma/client";
 
 async function verifyUser(user: string | undefined, prisma: PrismaClient) {
@@ -23,15 +18,15 @@ async function createCvSkills(
   cv: string,
   skills: string[] | undefined,
   prisma: PrismaClient,
-): Promise<CvSkill[]>{
+): Promise<CvSkill[] | null> {
   if (!skills) {
-    return [];
+    return null;
   }
 
   const cvSkills: CvSkill[] = [];
 
   // Check if all skills exist
-  if (skills.length > 0) {
+  if (skills.length === 0) {
     return cvSkills;
   }
 
@@ -55,8 +50,8 @@ async function createCvSkills(
 export const Mutation = {
   addCv: async (
     _parent: unknown,
-    { input }: { input: AddCvInput },
-    { prisma, pubSub }: Context
+    { input }: Input<AddCvInput>,
+    { prisma, pubSub }: Context,
   ) => {
     const { user, skills, ...data } = input;
 
@@ -65,19 +60,18 @@ export const Mutation = {
     const cv = { id: crypto.randomUUID(), ...data };
     const cvSkills = await createCvSkills(cv.id, skills, prisma);
 
-
-  // Create CV entry
-  const newCv = await prisma.cv.create({
-    data: {
-      ...cv,
-      user: { connect: { id: user } }, // Connect CV to user
-      skills: {
-        create: cvSkills.map(skill => ({
-          skill: { connect: { id: skill.skill } } // Connect CV to skill
-        }))
-      }
-    }
-  });
+    // Create CV entry
+    const newCv = await prisma.cv.create({
+      data: {
+        ...cv,
+        user: { connect: { id: user } }, // Connect CV to user
+        skills: {
+          create: cvSkills!.map((skill) => ({
+            skill: { connect: { id: skill.skill } }, // Connect CV to skill
+          })),
+        },
+      },
+    });
 
     pubSub.publish(CV_ADDED, newCv);
 
@@ -86,8 +80,8 @@ export const Mutation = {
 
   updateCv: async (
     _parent: unknown,
-    { input }: { input: UpdateCvInput },
-    { prisma, pubSub }: Context
+    { input }: Input<UpdateCvInput>,
+    { prisma, pubSub }: Context,
   ) => {
     const { id, user, skills, ...data } = input;
 
@@ -108,7 +102,7 @@ export const Mutation = {
       data: { ...data, user: user ? { connect: { id: user } } : undefined },
     });
 
-    if (cvSkills.length) {
+    if (cvSkills) {
       await prisma.cvSkill.deleteMany({ where: { cv: { id } } });
       await prisma.cvSkill.createMany({
         data: cvSkills.map((cvSkill) => ({
@@ -126,7 +120,7 @@ export const Mutation = {
   deleteCv: async (
     _parent: unknown,
     { id }: { id: string },
-    { prisma, pubSub }: Context
+    { prisma, pubSub }: Context,
   ) => {
     const deletedCv = await prisma.cv.delete({ where: { id } });
 
@@ -139,3 +133,4 @@ export const Mutation = {
     return deletedCv;
   },
 };
+
