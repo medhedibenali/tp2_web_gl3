@@ -1,6 +1,6 @@
 type Query {
   hello: String!
-  getAllCvs: [Cv!]
+  getCvs: [Cv!]
   getCvById(id:String!): Cv!
 }
 

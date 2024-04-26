@@ -27,7 +27,7 @@ function createCvSkills(
   const cvSkills: CvSkill[] = [];
 
   // Check if all skills exist
-  if (skills.length > 0) {
+  if (skills.length === 0) {
     return cvSkills;
   }
 
