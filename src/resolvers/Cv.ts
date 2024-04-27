@@ -1,7 +1,5 @@
-import { Input } from "../types";
-
 export const Cv = {
-  skills: ({ id }: {id:string}, args: any, { db }: any) => {
+  skills: ({ id }: { id: string }, args: any, { db }: any) => {
     let cvskill: string[];
     let skillids: string[] = [];
     cvskill = db.cv_skills.filter((cvskill: any) => cvskill.cv === id);
@@ -16,4 +14,8 @@ export const Cv = {
     userByCv.role = userByCv.role === "admin" ? "ADMIN" : "USER"; //to match the roles enum
     return userByCv;
   },
+};
+
+export const DeletedCv = {
+  user: Cv.user,
 };
