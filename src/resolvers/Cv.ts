@@ -1,9 +1,9 @@
-import { Context } from "../types";
+import { Context, Cv as CvType } from "../types";
 
 export const Cv = {
-  skills: async (parent: any, args: any, { prisma }: Context) => {
+  skills: async ({ id }: CvType, _args: unknown, { prisma }: Context) => {
     const skills = await prisma.cvSkill.findMany({
-      where: { cvId: parent.id },
+      where: { cvId: id },
       select: {
         skillId: true,
       },
@@ -15,11 +15,11 @@ export const Cv = {
     return cvSkills;
   },
 
-  user: async (parent: any, args: any, { prisma }: Context) => {
-    const id = parent.userId;
-    const userInfo = await prisma.user.findUnique({
-      where: { id: id },
-    });
-    return userInfo;
+  user: ({ userId }: CvType, _args: unknown, { prisma }: Context) => {
+    return prisma.user.findUnique({ where: { id: userId } });
   },
+};
+
+export const DeletedCv = {
+  user: Cv.user,
 };

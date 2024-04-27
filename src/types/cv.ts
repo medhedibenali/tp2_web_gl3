@@ -3,10 +3,11 @@ export interface Cv {
   name: string;
   age: number;
   job: string;
-  user: string;
+  userId: string;
 }
 
-export type AddCvInput = Omit<Cv, "id"> & {
+export type AddCvInput = Omit<Cv, "id" | "userId"> & {
+  user: string;
   skills: string[];
 };
 

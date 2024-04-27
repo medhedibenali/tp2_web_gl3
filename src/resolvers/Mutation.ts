@@ -1,6 +1,13 @@
 import { GraphQLError } from "graphql";
 import { CV_ADDED, CV_DELETED, CV_UPDATED } from "../events";
-import { AddCvInput, Context, CvSkill, Id, Input, UpdateCvInput } from "../types";
+import {
+  AddCvInput,
+  Context,
+  CvSkill,
+  Id,
+  Input,
+  UpdateCvInput,
+} from "../types";
 import { PrismaClient } from "@prisma/client";
 
 async function verifyUser(user: string | undefined, prisma: PrismaClient) {
@@ -122,15 +129,23 @@ export const Mutation = {
     { id }: Id,
     { prisma, pubSub }: Context,
   ) => {
-    const deletedCv = await prisma.cv.delete({ where: { id } });
+    const cv = await prisma.cv.findUnique({ where: { id } });
 
-    if (!deletedCv) {
-      throw new GraphQLError("CV not found");
+    if (!cv) {
+      throw new GraphQLError("Cv not found");
     }
 
-    pubSub.publish(CV_DELETED, deletedCv);
+    const deleteCvSkills = prisma.cvSkill.deleteMany({
+      where: {
+        cvId: cv.id,
+      },
+    });
+    const deleteCv = prisma.cv.delete({ where: { id } });
 
-    return deletedCv;
+    await prisma.$transaction([deleteCvSkills, deleteCv]);
+
+    pubSub.publish(CV_DELETED, cv);
+
+    return cv;
   },
 };
-
